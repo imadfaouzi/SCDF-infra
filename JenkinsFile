@@ -2,14 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // Define AWS credentials as environment variables
-        AWS_ACCOUNT_ID     = '339713000514'
-        AWS_REGION         = 'us-east-1'
-        DOCKER_IMAGE_1     = 'springcloud/spring-cloud-dataflow-server:2.11.2-SNAPSHOT'
-        DOCKER_IMAGE_2     = 'springcloud/spring-cloud-skipper-server:2.11.2-SNAPSHOT'
-        ECR_REPO_1         = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/dataflow:latest"
-        ECR_REPO_2         = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/skipper:latest"
-        AWS_CREDENTIALS_ID = 'my-aws-credentials-id' // ID of the AWS credentials stored in Jenkins
+        
 
          // AWS credentials
         AWS_ACCESS_KEY_ID = credentials('my-aws-access-key-id') 
@@ -17,45 +10,9 @@ pipeline {
     }
 
     stages {
-
-        stage('Prepare') {
-            steps {
-                script {
-                    // Sign in to AWS using AWS access key and secret key
-                    withCredentials([string(credentialsId: 'my-aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'), string(credentialsId: 'my-aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        sh "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
-                        sh "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-                    }
-                }
-            }
-        }
-
-        stage('Retag and Push Images') {
-            steps {
-                script {
-                    // Retag the first image and push to ECR
-                    sh """
-                        docker tag ${DOCKER_IMAGE_1} ${ECR_REPO_1}
-                        docker push ${ECR_REPO_1}
-                    """
-                    // Retag the second image and push to ECR
-                    sh """
-                        docker tag ${DOCKER_IMAGE_2} ${ECR_REPO_2}
-                        docker push ${ECR_REPO_2}
-                    """
-                }
-            }
-        }
-        
+         
     }
 
-    post {
-        cleanup {
-            // Cleanup Docker images to free up space
-            sh "docker rmi ${ECR_REPO_1} ${ECR_REPO_2}"
-        }
-    }
 }
 
 
