@@ -20,7 +20,7 @@ module "testRepo1" {
 
   account_id          = var.AccountID
   region              = var.aws_region
-  repository_name     = "testRepo1"
+  repository_name     = "testrepoimad1"
   tag                 = "latest"
 
   image_tag_mutability = "IMMUTABLE"
