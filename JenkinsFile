@@ -3,16 +3,70 @@ pipeline {
 
     environment {
         
-
          // AWS credentials
         AWS_ACCESS_KEY_ID = credentials('my-aws-access-key-id') 
         AWS_SECRET_ACCESS_KEY = credentials('my-aws-secret-access-key') 
     }
 
     stages {
-         
+        
+        stage('Checkout') {
+            steps {
+                // Checkout the code from the repository
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                script {
+                    // Initialize the Terraform working directory
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                script {
+                    // Validate the Terraform configuration files
+                    sh 'terraform validate'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                script {
+                    // Generate and show an execution plan
+                    sh 'terraform plan -out=tfplan'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    // Apply the changes required to reach the desired state of the configuration
+                    sh 'terraform apply -auto-approve tfplan'
+                }
+            }
+        }
     }
 
+    post {
+        always {
+            // Archive the Terraform state file and plan file as build artifacts
+            archiveArtifacts artifacts: 'terraform.tfstate, terraform.tfstate.backup, tfplan', allowEmptyArchive: true
+
+            // Optionally, stash the state file for use in later stages or builds
+            stash includes: 'terraform.tfstate, terraform.tfstate.backup', name: 'terraform-state'
+        }
+        cleanup {
+            // Clean up any temporary files or resources
+            deleteDir() // Deletes the workspace
+        }
+    }
 }
 
 
