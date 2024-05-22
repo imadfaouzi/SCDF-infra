@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-         
         // AWS credentials
         AWS_ACCESS_KEY_ID = credentials('my-aws-access-key-id') 
         AWS_SECRET_ACCESS_KEY = credentials('my-aws-secret-access-key') 
@@ -66,22 +65,16 @@ pipeline {
                 }
             }
         }
-    }
 
-    // MOVE state file to the Persiste folder //TODO:
-    stage('importing tfstate ifexiste') {
-            steps {
-                 script {
-                    
-                        sh 'mv terraform.tfstate /var/jenkins_persiste/'
-                    
+        // MOVE state file to the Persiste folder //TODO:
+        stage('importing tfstate ifexiste') {
+                steps {
+                    script {
+                            sh 'mv terraform.tfstate /var/jenkins_persiste/'
+                    }
                 }
-            }
         }
 
-
+    }
 }
-
-
- 
 
