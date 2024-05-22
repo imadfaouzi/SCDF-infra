@@ -16,10 +16,10 @@ pipeline {
             }
         }
 
-        // TODO:  import state file if existe:
-        stage('importing tfstate ifexiste') {
+        // TODO: import state file if exists
+        stage('Importing tfstate if exists') {
             steps {
-                 script {
+                script {
                     if (fileExists('/var/jenkins_persiste/terraform.tfstate')) {
                         echo 'File exists!'
                         sh 'cp /var/jenkins_persiste/terraform.tfstate .'
@@ -66,15 +66,14 @@ pipeline {
             }
         }
 
-        // MOVE state file to the Persiste folder //TODO:
-        stage('importing tfstate ifexiste') {
-                steps {
-                    script {
-                            sh 'mv terraform.tfstate /var/jenkins_persiste/'
-                    }
+        // MOVE state file to the Persiste folder
+        stage('Move tfstate file') {
+            steps {
+                script {
+                    sh 'mv terraform.tfstate /var/jenkins_persiste/'
                 }
+            }
         }
 
     }
 }
-
