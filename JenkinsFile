@@ -2,18 +2,32 @@ pipeline {
     agent any
 
     environment {
-        
-         // AWS credentials
+         
+        // AWS credentials
         AWS_ACCESS_KEY_ID = credentials('my-aws-access-key-id') 
         AWS_SECRET_ACCESS_KEY = credentials('my-aws-secret-access-key') 
     }
 
     stages {
-        
+
         stage('Checkout') {
             steps {
                 // Checkout the code from the repository
                 checkout scm
+            }
+        }
+
+        // TODO:  import state file if existe:
+        stage('importing tfstate ifexiste') {
+            steps {
+                 script {
+                    if (fileExists('/var/jenkins_persiste/terraform.tfstate')) {
+                        echo 'File exists!'
+                        sh 'cp /var/jenkins_persiste/terraform.tfstate .'
+                    } else {
+                        echo 'File does not exist!'
+                    }
+                }
             }
         }
 
@@ -54,19 +68,18 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            // Archive the Terraform state file and plan file as build artifacts
-            archiveArtifacts artifacts: 'terraform.tfstate, terraform.tfstate.backup, tfplan', allowEmptyArchive: true
+    // MOVE state file to the Persiste folder //TODO:
+    stage('importing tfstate ifexiste') {
+            steps {
+                 script {
+                    
+                        sh 'mv terraform.tfstate /var/jenkins_persiste/'
+                    
+                }
+            }
+        }
 
-            // Optionally, stash the state file for use in later stages or builds
-            stash includes: 'terraform.tfstate, terraform.tfstate.backup', name: 'terraform-state'
-        }
-        cleanup {
-            // Clean up any temporary files or resources
-            deleteDir() // Deletes the workspace
-        }
-    }
+
 }
 
 
