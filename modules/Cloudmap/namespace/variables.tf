@@ -15,8 +15,4 @@ variable "description" {
   default     = ""
 }
 
-variable "instance_discovery" {
-  description = "The instance discovery method to use. Options are 'API calls', 'API calls and DNS queries in VPCs', 'API calls and public DNS queries'."
-  type        = string
-  default     = "API calls"
-}
+

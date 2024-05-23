@@ -14,6 +14,7 @@ resource "aws_vpc" "my_vpc" {
 
 /*
  * internet gateway
+ *
  **/
 resource "aws_internet_gateway" "igw" {
 
@@ -97,9 +98,7 @@ resource "aws_subnet" "private" {
 resource "aws_route_table" "public" {
 
   depends_on = [ aws_vpc.my_vpc ]
-
-
-  count = length(var.public_subnets)
+ 
 
   vpc_id = aws_vpc.my_vpc.id
 
@@ -109,21 +108,20 @@ resource "aws_route_table" "public" {
   }
 
   tags = merge({
-    Name = "${var.vpc_name}-public-rt-${count.index + 1}"
+    Name = "${var.vpc_name}-public-rt"
   }, var.tags)
 }
 
 resource "aws_route_table_association" "public" {
   count          = length(var.public_subnets)
   subnet_id      = element(aws_subnet.public[*].id, count.index)
-  route_table_id = element(aws_route_table.public[*].id, count.index)
+  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table" "private" {
 
   depends_on = [ aws_vpc.my_vpc ]
 
-  count = length(var.private_subnets)
 
   vpc_id = aws_vpc.my_vpc.id
 
@@ -133,14 +131,14 @@ resource "aws_route_table" "private" {
   }
 
   tags = merge({
-    Name = "${var.vpc_name}-private-rt-${count.index + 1}"
+    Name = "${var.vpc_name}-private-rt"
   }, var.tags)
 }
 
 resource "aws_route_table_association" "private" {
   count          = length(var.private_subnets)
   subnet_id      = element(aws_subnet.private[*].id, count.index)
-  route_table_id = element(aws_route_table.private[*].id, count.index)
+  route_table_id = aws_route_table.private.id
 }
 
 
